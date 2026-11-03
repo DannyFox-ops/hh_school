@@ -130,8 +130,8 @@ order by salary_from desc
 
 
 -- Вывод:
--- Первый запрос выдал 10 открытых вакансий о стажировке без опыта в Москве, в то время как такой же запрос без Москвы выдал 50 стажировок.
--- То есть цифра увеличилась в 5 раз. При этом, названия вакансий приобрели приставку "Стажёр", что логично. 
+-- Первый запрос выдал 8 открытых вакансий о стажировке без опыта в Москве, в то время как такой же запрос без Москвы выдал 10 стажировок.
+-- То есть цифра увеличилась незначительно. При этом, названия вакансий приобрели приставку "Стажёр", что логично. 
 -- Первый запрос похож на обычный поиск работы, особенно для студента. Второй же можно отнести к анализу рынка минимальных зарплат
 
 -- ЗАДАНИЕ Б3
@@ -423,15 +423,20 @@ order by conversion_pct desc nulls last
 --
 -- Исправленный запрос:
  SELECT v.professional_role,
-        count(v.vacancy_id ) AS vacancies,
-        sum(v.salary_from) AS total_salary,
-        count(r.response_id) / 
-               count(distinct r.vacancy_id ) AS responses_per_vacancy
+        count(distinct v.vacancy_id ) AS vacancies,
+        round(
+        avg(
+        v.salary_from)
+        ,0) * count(distinct v.vacancy_id )            AS total_salary,
+        round(count(r.response_id) * 1.0 / 
+               count(distinct r.vacancy_id ),
+               1)AS responses_per_vacancy
  FROM hh_school.vacancies v
  left JOIN hh_school.responses r 
       ON v.vacancy_id = r.vacancy_id
  WHERE v.closed_at is NULL
  group by professional_role 
+
 
 -- Какие два правила из лекции защитили бы от этих ошибок при написании запроса:
 -- 1. Метрики и измерения. Что считаем, и как считаем, игнорируем null или нет
